@@ -1,0 +1,14 @@
+[package]
+name = "xdg-trash"
+version = "0.1.0"
+authors = ["Caleb Bassi <calebjbassi@gmail.com>"]
+edition = "2018"
+
+[dependencies]
+xdg = "2.2.0"
+chrono = "0.4.6"
+failure = "0.1.5"
+
+[lib]
+name = "xdg_trash"
+path = "src/lib.rs"
