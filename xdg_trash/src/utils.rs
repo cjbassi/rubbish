@@ -1,7 +1,9 @@
 use std::fs;
 use std::path::{Path, PathBuf};
+use std::process::Command;
+use std::str;
 
-use failure::ResultExt;
+use failure::{Error, ResultExt};
 
 use crate::error::{TrashError, TrashErrorKind};
 
@@ -24,4 +26,18 @@ where
     fs::rename(&from, &to).context(TrashErrorKind::FileMoveError)?;
 
     Ok(to)
+}
+
+pub fn get_mountpoints() -> Result<Vec<PathBuf>, Error> {
+    let output = Command::new("lsblk")
+        .args(&["-o", "MOUNTPOINT", "-n"])
+        .output()?
+        .stdout;
+    let output = str::from_utf8(&output)?;
+    let mountpoints = output
+        .lines()
+        .filter(|&line| line != "")
+        .map(PathBuf::from)
+        .collect();
+    Ok(mountpoints)
 }
