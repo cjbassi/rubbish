@@ -10,9 +10,10 @@ use systemstat::{Platform, System};
 // renames a file, creating the destination directories if necessary, adds
 // a number to the end of the path if there are any path conflicts, and checks
 // if the destination is a directory and moves the file into the dir instead
-pub fn move_file_handle_conflicts<P>(from: P, to: P) -> io::Result<PathBuf>
+pub fn move_file_handle_conflicts<P1, P2>(from: P1, to: P2) -> io::Result<PathBuf>
 where
-    P: AsRef<Path>,
+    P1: AsRef<Path>,
+    P2: AsRef<Path>,
 {
     let from = from.as_ref().absolute_path();
     let mut to = to.as_ref().absolute_path();
@@ -87,9 +88,10 @@ impl AbsolutePath for Path {
     }
 }
 
-pub fn get_physical_mountpoint_of_file<P>(file: P, mountpoints: &[P]) -> PathBuf
+pub fn get_physical_mountpoint_of_path<P1, P2>(file: P1, mountpoints: &[P2]) -> PathBuf
 where
-    P: AsRef<Path>,
+    P1: AsRef<Path>,
+    P2: AsRef<Path>,
 {
     let file = file.as_ref().absolute_path();
     let mut mountpoints = mountpoints.into_iter();
