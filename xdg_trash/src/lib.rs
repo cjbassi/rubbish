@@ -94,6 +94,13 @@ impl Trash {
         dbg!(mountpoint);
         dbg!(mountpoint_home);
 
+        let trash_info_path = get_trash_info_path(&file, &self.home_trash.as_path());
+        let trash_info = TrashInfo {
+            original_path: file.to_path_buf(),
+            deletion_date: Local::now(),
+        };
+        fs::write(trash_info_path, format!("{}\n", trash_info))?;
+
         let trashed_path = move_file_handle_conflicts(
             &file,
             &self
@@ -102,13 +109,6 @@ impl Trash {
                 .join(&file_name(file))
                 .as_ref(),
         )?;
-
-        let trash_info_path = get_trash_info_path(&file, &self.home_trash.as_path());
-        let trash_info = TrashInfo {
-            original_path: file.to_path_buf(),
-            deletion_date: Local::now(),
-        };
-        fs::write(trash_info_path, format!("{}\n", trash_info))?;
 
         Ok(trashed_path)
     }
