@@ -94,10 +94,7 @@ impl Trash {
                 .as_ref(),
         )?;
 
-        let trash_info_path = self
-            .home_trash
-            .join("info")
-            .join(format!("{}.trashinfo", file_name(&trashed_path).display()));
+        let trash_info_path = get_trash_info_path(&file, &self.home_trash.as_path());
         let trash_info = TrashInfo {
             original_path: file.to_path_buf(),
             deletion_date: Local::now(),
@@ -112,10 +109,7 @@ impl Trash {
         P: AsRef<Path>,
     {
         let file = file.as_ref();
-        let trash_info_path = self
-            .home_trash
-            .join("info")
-            .join(format!("{}.trashinfo", file_name(file).display()));
+        let trash_info_path = get_trash_info_path(&file, &self.home_trash.as_path());
         let original_path = fs::read_to_string(&trash_info_path)?
             .parse::<TrashInfo>()
             .context(TrashErrorKind::ParseTrashInfoError(
@@ -141,17 +135,14 @@ impl Trash {
         }
 
         if self.is_file_trashed(&file) {
-            fs::remove_file(
-                self.home_trash
-                    .join("info")
-                    .join(format!("{}.trashinfo", file_name(&file).display())),
-            )?;
+            fs::remove_file(get_trash_info_path(&file, &self.home_trash.as_path()))?;
         }
         if file.is_dir() {
             fs::remove_dir_all(file)?;
         } else {
             fs::remove_file(file)?;
         }
+
         Ok(())
     }
 
@@ -161,6 +152,15 @@ impl Trash {
     {
         file.as_ref().starts_with(&self.home_trash.join("files"))
     }
+}
+
+fn get_trash_info_path<P>(file: P, dir: P) -> PathBuf
+where
+    P: AsRef<Path>,
+{
+    let (file, dir) = (file.as_ref(), dir.as_ref());
+    dir.join("info")
+        .join(format!("{}.trashinfo", file_name(&file).display()))
 }
 
 #[derive(Debug, PartialEq, Eq)]
