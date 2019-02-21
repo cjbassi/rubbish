@@ -30,7 +30,7 @@ pub fn run(days: Option<f64>) {
 
     let input: u32 = prompt("Select file to restore");
 
-    if let Err(e) = TRASH.restore_trashed_file(
+    if let Err(e) = TRASH.recover_trashed_file(
         &trashed_files
             .get((input - 1) as usize)
             .expect("index out of range")

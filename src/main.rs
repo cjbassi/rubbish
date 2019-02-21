@@ -48,8 +48,8 @@ fn main() {
         Subcommand::Put { files } => {
             subcommands::put::run(&files);
         }
-        Subcommand::Restore { days } => {
-            subcommands::restore::run(days);
+        Subcommand::Recover { days } => {
+            subcommands::recover::run(days);
         }
     }
 

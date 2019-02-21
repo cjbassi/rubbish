@@ -56,9 +56,9 @@ pub enum Subcommand {
     #[structopt(name = "put")]
     Put { files: Vec<PathBuf> },
 
-    /// Restore a previously trashed file to its original location
-    #[structopt(name = "restore")]
-    Restore {
+    /// Recover a previously trashed file to its original location
+    #[structopt(name = "recover")]
+    Recover {
         #[structopt(name = "days")]
         days: Option<f64>,
     },

@@ -104,7 +104,7 @@ impl Trash {
         Ok(trashed_path)
     }
 
-    pub fn restore_trashed_file<P>(&self, file: P) -> TrashResult<PathBuf>
+    pub fn recover_trashed_file<P>(&self, file: P) -> TrashResult<PathBuf>
     where
         P: AsRef<Path>,
     {

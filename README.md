@@ -9,7 +9,7 @@ Executable is called `trash` and the following subcommands are provided:
 - `list`: Recursively list files trashed from the current directory
 - `prune`: Erase files from the trash that match a given regex
 - `put`: Trash given files
-- `restore`: Restore a previously trashed file to its original location
+- `recover`: Recover a previously trashed file to its original location
 
 ## Installation
 

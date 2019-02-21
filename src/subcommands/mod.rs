@@ -3,4 +3,4 @@ pub mod erase;
 pub mod list;
 pub mod prune;
 pub mod put;
-pub mod restore;
+pub mod recover;
