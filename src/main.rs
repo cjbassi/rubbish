@@ -21,10 +21,12 @@ lazy_static! {
         env::current_dir().unwrap().to_string_lossy().to_string();
     static ref TRASH: Trash = Trash::new().unwrap();
     static ref return_code: Mutex<i32> = Mutex::new(0);
+    static ref verbose: Mutex<bool> = Mutex::new(false);
 }
 
 fn main() {
     let args = Args::from_args();
+    *verbose.lock().unwrap() = args.verbose;
 
     match args.subcommand {
         Subcommand::Empty { days, no_confirm } => {
