@@ -72,3 +72,36 @@ where
     };
     PathBuf::from(path.file_name().unwrap().to_string_lossy().to_string())
 }
+
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_rename_file_handle_conflicts() {
+        use std::fs::File;
+
+        let folder = PathBuf::from("test1");
+        fs::create_dir_all(&folder);
+        let file = folder.join("file");
+        let file1 = folder.join("foo");
+        File::create(&file);
+        File::create(&file1);
+        assert!(&file.exists());
+        assert_eq!(
+            rename_file_handle_conflicts(&file, &file1).unwrap(),
+            folder.join("foo_1")
+        );
+        assert!(!&file.exists());
+        File::create(&file);
+        assert!(rename_file_handle_conflicts(&file, &file.join("asdf")).is_err());
+        assert_eq!(
+            rename_file_handle_conflicts(&file, &PathBuf::from(format!("{}asdf", file.display(),)))
+                .unwrap(),
+            folder.join("fileasdf")
+        );
+
+        fs::remove_dir_all(folder).unwrap();
+    }
+}
