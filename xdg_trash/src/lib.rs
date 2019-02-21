@@ -14,10 +14,9 @@ use chrono::prelude::{DateTime, Local, TimeZone};
 use failure::{Error, ResultExt};
 use itertools::Itertools;
 use nom::{do_parse, map_res, named, tag, take, take_until_and_consume};
-use systemstat::{Platform, System};
 use xdg::BaseDirectories;
 
-use utils::{file_name, move_file_handle_conflicts};
+use utils::{move_file_handle_conflicts, AbsolutePath};
 
 type Result<T> = std::result::Result<T, Error>;
 
@@ -73,7 +72,7 @@ impl Trash {
     where
         P: AsRef<Path>,
     {
-        let file = file.as_ref();
+        let file = file.as_ref().absolute_path();
 
         if !file.exists() {
             Err(io::Error::new(
@@ -89,12 +88,7 @@ impl Trash {
             )))?
         }
 
-        let mountpoint = System::new().mount_at(&file);
-        let mountpoint_home = System::new().mount_at(&self.home_trash);
-        dbg!(mountpoint);
-        dbg!(mountpoint_home);
-
-        let trash_info_path = get_trash_info_path(&file, &self.home_trash.as_path());
+        let trash_info_path = get_trash_info_path(&file, &self.home_trash);
         let trash_info = TrashInfo {
             original_path: file.to_path_buf(),
             deletion_date: Local::now(),
@@ -106,8 +100,7 @@ impl Trash {
             &self
                 .home_trash
                 .join("files")
-                .join(&file_name(file))
-                .as_ref(),
+                .join(file.file_name().unwrap()),
         )?;
 
         Ok(trashed_path)
@@ -117,15 +110,15 @@ impl Trash {
     where
         P: AsRef<Path>,
     {
-        let file = file.as_ref();
-        let trash_info_path = get_trash_info_path(&file, &self.home_trash.as_path());
+        let file = file.as_ref().absolute_path();
+        let trash_info_path = get_trash_info_path(&file, &self.home_trash);
         let original_path = fs::read_to_string(&trash_info_path)?
             .parse::<TrashInfo>()
             .context(TrashErrorKind::ParseTrashInfoError(
                 trash_info_path.to_string_lossy().to_string(),
             ))?
             .original_path;
-        let recovered_path = move_file_handle_conflicts(&file, &original_path.as_path())?;
+        let recovered_path = move_file_handle_conflicts(&file, &original_path)?;
         fs::remove_file(trash_info_path)?;
         Ok(recovered_path)
     }
@@ -134,7 +127,7 @@ impl Trash {
     where
         P: AsRef<Path>,
     {
-        let file = file.as_ref();
+        let file = file.as_ref().absolute_path();
 
         if !file.exists() {
             Err(io::Error::new(
@@ -144,7 +137,7 @@ impl Trash {
         }
 
         if self.is_file_trashed(&file) {
-            fs::remove_file(get_trash_info_path(&file, &self.home_trash.as_path()))?;
+            fs::remove_file(get_trash_info_path(&file, &self.home_trash))?;
         }
         if file.is_dir() {
             fs::remove_dir_all(file)?;
@@ -159,7 +152,9 @@ impl Trash {
     where
         P: AsRef<Path>,
     {
-        file.as_ref().starts_with(&self.home_trash.join("files"))
+        file.as_ref()
+            .absolute_path()
+            .starts_with(&self.home_trash.join("files"))
     }
 }
 
@@ -167,9 +162,11 @@ fn get_trash_info_path<P>(file: P, dir: P) -> PathBuf
 where
     P: AsRef<Path>,
 {
-    let (file, dir) = (file.as_ref(), dir.as_ref());
-    dir.join("info")
-        .join(format!("{}.trashinfo", file_name(&file).display()))
+    let (file, dir) = (file.as_ref().absolute_path(), dir.as_ref().absolute_path());
+    dir.join("info").join(format!(
+        "{}.trashinfo",
+        file.file_name().unwrap().to_string_lossy()
+    ))
 }
 
 #[derive(Debug, PartialEq, Eq)]
