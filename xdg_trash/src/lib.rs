@@ -3,6 +3,7 @@ mod utils;
 
 pub use error::{TrashError, TrashErrorKind, TrashResult};
 
+use std::cmp::Ordering;
 use std::fmt;
 use std::fs;
 use std::io;
@@ -11,6 +12,7 @@ use std::str::FromStr;
 
 use chrono::prelude::{DateTime, Local, TimeZone};
 use failure::{Error, ResultExt};
+use itertools::Itertools;
 use nom::{do_parse, map_res, named, tag, take, take_until_and_consume};
 use systemstat::{Platform, System};
 use xdg::BaseDirectories;
@@ -56,6 +58,13 @@ impl Trash {
                     trashed_path,
                     trash_info,
                 })
+            })
+            .sorted_by(|result1, result2| match result1 {
+                Ok(x) => match result2 {
+                    Ok(y) => Ord::cmp(&x.trash_info.deletion_date, &y.trash_info.deletion_date),
+                    Err(_) => Ordering::Less,
+                },
+                Err(_) => Ordering::Less,
             })
             .collect())
     }
