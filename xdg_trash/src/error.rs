@@ -19,9 +19,9 @@ pub enum TrashErrorKind {
 
     #[fail(display = "BaseDirectories error")]
     BaseDirectories,
+    #[fail(display = "SystemStat error")]
+    SystemStat,
 
-    #[fail(display = "failed to run subprocess: {}", _0)]
-    SubprocessError(String),
     #[fail(display = "cannot trash trash-can: {}", _0)]
     TrashingTrashCan(String),
     #[fail(display = "failed to parse TrashInfo file: {}", _0)]

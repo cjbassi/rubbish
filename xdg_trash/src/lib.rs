@@ -11,15 +11,16 @@ use std::str::FromStr;
 
 use chrono::prelude::{DateTime, Local, TimeZone};
 use failure::{Error, ResultExt};
+use nom::{do_parse, map_res, named, tag, take, take_until_and_consume};
+use systemstat::{Platform, System};
 use xdg::BaseDirectories;
 
-use utils::{file_name, get_mountpoints, move_file_handle_conflicts};
+use utils::{file_name, move_file_handle_conflicts};
 
 type Result<T> = std::result::Result<T, Error>;
 
 pub struct Trash {
     home_trash: PathBuf,
-    home_trash_mountpoint: PathBuf,
 }
 
 impl Trash {
@@ -30,11 +31,7 @@ impl Trash {
             .join("Trash");
         fs::create_dir_all(home_trash.join("files"))?;
         fs::create_dir_all(home_trash.join("info"))?;
-        let home_trash_mountpoint = PathBuf::new();
-        Ok(Trash {
-            home_trash,
-            home_trash_mountpoint,
-        })
+        Ok(Trash { home_trash })
     }
 
     pub fn get_trashed_files(&self) -> TrashResult<Vec<TrashResult<TrashEntry>>> {
@@ -67,30 +64,34 @@ impl Trash {
     where
         P: AsRef<Path>,
     {
-        let file = file
-            .as_ref()
-            .to_owned()
-            .canonicalize()
-            .context(file.as_ref().to_string_lossy().to_string())
-            .context(TrashErrorKind::Io)?;
+        let file = file.as_ref();
 
         if !file.exists() {
-            return Err(io::Error::new(
+            Err(io::Error::new(
                 io::ErrorKind::NotFound,
                 format!("cannot trash {}: file does not exist", file.display()),
-            ))?;
+            ))?
         }
         // check if given file contains the trash-can
         if self.home_trash.starts_with(&file) {
             Err(TrashErrorKind::TrashingTrashCan(format!(
                 "{}",
                 file.display()
-            )))?;
+            )))?
         }
+
+        let mountpoint = System::new().mount_at(&file);
+        let mountpoint_home = System::new().mount_at(&self.home_trash);
+        dbg!(mountpoint);
+        dbg!(mountpoint_home);
 
         let trashed_path = move_file_handle_conflicts(
             &file,
-            &self.home_trash.join("files").join(&file_name(&file)),
+            &self
+                .home_trash
+                .join("files")
+                .join(&file_name(file))
+                .as_ref(),
         )?;
 
         let trash_info_path = self
@@ -130,12 +131,14 @@ impl Trash {
     where
         P: AsRef<Path>,
     {
-        let file = file
-            .as_ref()
-            .to_owned()
-            .canonicalize()
-            .context(file.as_ref().to_string_lossy().to_string())
-            .context(TrashErrorKind::Io)?;
+        let file = file.as_ref();
+
+        if !file.exists() {
+            Err(io::Error::new(
+                io::ErrorKind::NotFound,
+                format!("cannot trash {}: file does not exist", file.display()),
+            ))?
+        }
 
         if self.is_file_trashed(&file) {
             fs::remove_file(
@@ -172,30 +175,27 @@ pub struct TrashInfo {
     pub deletion_date: DateTime<Local>,
 }
 
+named!(
+    parse_trash_info<&str, TrashInfo>,
+    do_parse!(
+        tag!("[Trash Info]\n")
+            >> tag!("Path=")
+            >> original_path: take_until_and_consume!("\n")
+            >> tag!("DeletionDate=")
+            >> deletion_date: map_res!(take!(19), |input| Local.datetime_from_str(input, "%Y-%m-%dT%H:%M:%S"))
+            >> (TrashInfo {
+                original_path: PathBuf::from(original_path),
+                deletion_date,
+            })
+    )
+);
+
 impl FromStr for TrashInfo {
     type Err = Error;
 
     fn from_str(s: &str) -> Result<Self> {
-        let lines = s.lines().skip(1).collect::<Vec<&str>>();
-        let original_path = PathBuf::from(
-            &lines
-                .get(0)
-                .ok_or_else(|| io::Error::new(io::ErrorKind::UnexpectedEof, "unexpected EOF"))?
-                .get(5..)
-                .ok_or_else(|| io::Error::new(io::ErrorKind::Other, "unexpected end of line"))?,
-        );
-        let deletion_date = Local.datetime_from_str(
-            &lines
-                .get(1)
-                .ok_or_else(|| io::Error::new(io::ErrorKind::UnexpectedEof, "unexpected EOF"))?
-                .get(13..)
-                .ok_or_else(|| io::Error::new(io::ErrorKind::Other, "unexpected end of line"))?,
-            "%Y-%m-%dT%H:%M:%S",
-        )?;
-
-        Ok(TrashInfo {
-            original_path,
-            deletion_date,
+        parse_trash_info(s).map(|x| x.1).map_err(|_| {
+            io::Error::new(io::ErrorKind::InvalidData, "failed to parse TrashInfo").into()
         })
     }
 }

@@ -1,8 +1,6 @@
 use std::fs;
 use std::io;
 use std::path::{Path, PathBuf};
-use std::process::Command;
-use std::str;
 
 use path_clean::PathClean;
 
@@ -42,21 +40,6 @@ where
     fs::rename(&from, &to)?;
 
     Ok(to)
-}
-
-pub fn get_mountpoints() -> io::Result<Vec<PathBuf>> {
-    let output = Command::new("lsblk")
-        .args(&["-o", "MOUNTPOINT", "-n"])
-        .output()?
-        .stdout;
-    let output = str::from_utf8(&output)
-        .map_err(|e| io::Error::new(io::ErrorKind::InvalidData, e.to_string()))?;
-    let mountpoints = output
-        .lines()
-        .filter(|&line| line != "")
-        .map(PathBuf::from)
-        .collect();
-    Ok(mountpoints)
 }
 
 // path.parent() does some weird things like telling us the parent of "." is "", so we have to fix that
