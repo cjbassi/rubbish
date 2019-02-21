@@ -1,131 +1,153 @@
 mod error;
 mod utils;
 
-pub use error::{TrashError, TrashErrorKind};
+pub use error::{TrashError, TrashErrorKind, TrashResult};
 
 use std::fmt;
 use std::fs;
+use std::io;
 use std::path::{Path, PathBuf};
 use std::str::FromStr;
 
 use chrono::prelude::{DateTime, Local, TimeZone};
-use failure::ResultExt;
+use failure::{Error, ResultExt};
 use xdg::BaseDirectories;
 
-use utils::rename_file_handle_conflicts;
+use utils::{file_name, get_mountpoints, move_file_handle_conflicts};
+
+type Result<T> = std::result::Result<T, Error>;
 
 pub struct Trash {
     home_trash: PathBuf,
-    // home_trash_partition:
+    home_trash_mountpoint: PathBuf,
 }
 
 impl Trash {
-    pub fn new() -> Trash {
+    pub fn new() -> TrashResult<Trash> {
         let home_trash = BaseDirectories::new()
-            .unwrap()
+            .context(TrashErrorKind::BaseDirectories)?
             .get_data_home()
             .join("Trash");
-        fs::create_dir_all(home_trash.join("files")).unwrap();
-        fs::create_dir_all(home_trash.join("info")).unwrap();
-        Trash { home_trash }
+        fs::create_dir_all(home_trash.join("files"))?;
+        fs::create_dir_all(home_trash.join("info"))?;
+        let home_trash_mountpoint = PathBuf::new();
+        Ok(Trash {
+            home_trash,
+            home_trash_mountpoint,
+        })
     }
 
-    pub fn get_trashed_files(&self) -> Vec<Result<TrashEntry, TrashError>> {
-        self.home_trash
+    pub fn get_trashed_files(&self) -> TrashResult<Vec<TrashResult<TrashEntry>>> {
+        Ok(self
+            .home_trash
             .join("info")
-            .read_dir()
-            .unwrap()
+            .read_dir()?
             .map(|dir_entry| {
-                let trash_info_path = dir_entry.unwrap().path();
-                let trashed_path = self
-                    .home_trash
-                    .join("files")
-                    .join(trash_info_path.file_stem().unwrap());
-                let trash_info = fs::read_to_string(&trash_info_path)
-                    .context(TrashErrorKind::TrashInfoFileReadError)?
+                let trash_info_path = dir_entry?.path();
+                let trashed_path =
+                    self.home_trash
+                        .join("files")
+                        .join(trash_info_path.file_stem().ok_or_else(|| {
+                            TrashErrorKind::Path(".trashinfo file without file stem".to_owned())
+                        })?);
+                let trash_info = fs::read_to_string(&trash_info_path)?
                     .parse::<TrashInfo>()
-                    .context(TrashErrorKind::TrashInfoFileParseError)?;
+                    .context(TrashErrorKind::ParseTrashInfoError(
+                        trash_info_path.to_string_lossy().to_string(),
+                    ))?;
                 Ok(TrashEntry {
                     trashed_path,
                     trash_info,
                 })
             })
-            .collect()
+            .collect())
     }
 
-    pub fn trash_file<P>(&self, file: P) -> Result<PathBuf, TrashError>
+    pub fn trash_file<P>(&self, file: P) -> TrashResult<PathBuf>
     where
         P: AsRef<Path>,
     {
-        let file = file.as_ref().to_owned().canonicalize().unwrap();
+        let file = file
+            .as_ref()
+            .to_owned()
+            .canonicalize()
+            .context(file.as_ref().to_string_lossy().to_string())
+            .context(TrashErrorKind::Io)?;
 
         if !file.exists() {
-            Err(TrashErrorKind::FileDoesNotExist)?
+            return Err(io::Error::new(
+                io::ErrorKind::NotFound,
+                format!("cannot trash {}: file does not exist", file.display()),
+            ))?;
         }
         // check if given file contains the trash-can
         if self.home_trash.starts_with(&file) {
-            Err(TrashErrorKind::TrashingTrashCan)?
+            Err(TrashErrorKind::TrashingTrashCan(format!(
+                "{}",
+                file.display()
+            )))?;
         }
 
-        let trashed_path = rename_file_handle_conflicts(
+        let trashed_path = move_file_handle_conflicts(
             &file,
-            &self
-                .home_trash
-                .join("files")
-                .join(&(&file).file_name().unwrap().to_string_lossy().into_owned()),
-        )
-        .unwrap();
+            &self.home_trash.join("files").join(&file_name(&file)),
+        )?;
 
-        let trash_info_path = self.home_trash.join("info").join(format!(
-            "{}.trashinfo",
-            trashed_path.file_name().unwrap().to_string_lossy(),
-        ));
+        let trash_info_path = self
+            .home_trash
+            .join("info")
+            .join(format!("{}.trashinfo", file_name(&trashed_path).display()));
         let trash_info = TrashInfo {
-            original_path: file,
+            original_path: file.to_path_buf(),
             deletion_date: Local::now(),
         };
-        fs::write(trash_info_path, format!("{}\n", trash_info))
-            .context(TrashErrorKind::TrashInfoFileWriteError)?;
+        fs::write(trash_info_path, format!("{}\n", trash_info))?;
 
         Ok(trashed_path)
     }
 
-    pub fn restore_trashed_file<P>(&self, file: P) -> Result<PathBuf, TrashError>
+    pub fn restore_trashed_file<P>(&self, file: P) -> TrashResult<PathBuf>
     where
         P: AsRef<Path>,
     {
         let file = file.as_ref();
-        let filename = file.file_name().unwrap();
         let trash_info_path = self
             .home_trash
             .join("info")
-            .join(format!("{}.trashinfo", filename.to_string_lossy()));
-        let original_path = fs::read_to_string(&trash_info_path)
-            .context(TrashErrorKind::TrashInfoFileReadError)?
+            .join(format!("{}.trashinfo", file_name(file).display()));
+        let original_path = fs::read_to_string(&trash_info_path)?
             .parse::<TrashInfo>()
-            .context(TrashErrorKind::TrashInfoFileParseError)?
+            .context(TrashErrorKind::ParseTrashInfoError(
+                trash_info_path.to_string_lossy().to_string(),
+            ))?
             .original_path;
-        let recovered_path = rename_file_handle_conflicts(&file, &original_path.as_path()).unwrap();
-        fs::remove_file(trash_info_path).unwrap();
+        let recovered_path = move_file_handle_conflicts(&file, &original_path.as_path())?;
+        fs::remove_file(trash_info_path)?;
         Ok(recovered_path)
     }
 
-    pub fn erase_file<P>(&self, file: P) -> Result<(), TrashError>
+    pub fn erase_file<P>(&self, file: P) -> TrashResult<()>
     where
         P: AsRef<Path>,
     {
-        let file = file.as_ref();
+        let file = file
+            .as_ref()
+            .to_owned()
+            .canonicalize()
+            .context(file.as_ref().to_string_lossy().to_string())
+            .context(TrashErrorKind::Io)?;
+
         if self.is_file_trashed(&file) {
-            fs::remove_file(self.home_trash.join("info").join(format!(
-                "{}.trashinfo",
-                file.file_name().unwrap().to_string_lossy()
-            )))
-            .unwrap();
+            fs::remove_file(
+                self.home_trash
+                    .join("info")
+                    .join(format!("{}.trashinfo", file_name(&file).display())),
+            )?;
         }
         if file.is_dir() {
-            fs::remove_dir_all(file).unwrap();
+            fs::remove_dir_all(file)?;
         } else {
-            fs::remove_file(file).unwrap();
+            fs::remove_file(file)?;
         }
         Ok(())
     }
@@ -151,19 +173,25 @@ pub struct TrashInfo {
 }
 
 impl FromStr for TrashInfo {
-    type Err = TrashError;
+    type Err = Error;
 
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let err = TrashErrorKind::TrashInfoStringParseError;
-
+    fn from_str(s: &str) -> Result<Self> {
         let lines = s.lines().skip(1).collect::<Vec<&str>>();
-        let original_path = PathBuf::from(&lines.get(0).ok_or(err)?.get(5..).ok_or(err)?);
-        let deletion_date = Local
-            .datetime_from_str(
-                &lines.get(1).ok_or(err)?.get(13..).ok_or(err)?,
-                "%Y-%m-%dT%H:%M:%S",
-            )
-            .context(err)?;
+        let original_path = PathBuf::from(
+            &lines
+                .get(0)
+                .ok_or_else(|| io::Error::new(io::ErrorKind::UnexpectedEof, "unexpected EOF"))?
+                .get(5..)
+                .ok_or_else(|| io::Error::new(io::ErrorKind::Other, "unexpected end of line"))?,
+        );
+        let deletion_date = Local.datetime_from_str(
+            &lines
+                .get(1)
+                .ok_or_else(|| io::Error::new(io::ErrorKind::UnexpectedEof, "unexpected EOF"))?
+                .get(13..)
+                .ok_or_else(|| io::Error::new(io::ErrorKind::Other, "unexpected end of line"))?,
+            "%Y-%m-%dT%H:%M:%S",
+        )?;
 
         Ok(TrashInfo {
             original_path,

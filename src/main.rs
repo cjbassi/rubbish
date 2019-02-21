@@ -3,6 +3,8 @@ mod common;
 mod subcommands;
 
 use std::env;
+use std::process::exit;
+use std::sync::Mutex;
 
 use chrono::prelude::{DateTime, Local};
 use dirs::home_dir;
@@ -17,7 +19,8 @@ lazy_static! {
     static ref CURRENT_TIME: DateTime<Local> = Local::now();
     static ref CURRENT_DIR_STRING: String =
         env::current_dir().unwrap().to_string_lossy().to_string();
-    static ref TRASH: Trash = Trash::new();
+    static ref TRASH: Trash = Trash::new().unwrap();
+    static ref return_code: Mutex<i32> = Mutex::new(0);
 }
 
 fn main() {
@@ -47,4 +50,6 @@ fn main() {
             subcommands::restore::run(days);
         }
     }
+
+    exit(*return_code.lock().unwrap());
 }

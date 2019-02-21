@@ -1,6 +1,6 @@
 use std::path::PathBuf;
 
-use crate::common::prompt_user_for_confirmation;
+use crate::common::{pretty_error, prompt_user_for_confirmation};
 use crate::TRASH;
 
 pub fn run(files: &[PathBuf], no_confirm: bool) {
@@ -10,7 +10,7 @@ pub fn run(files: &[PathBuf], no_confirm: bool) {
 
     files.iter().for_each(|file| {
         if let Err(e) = TRASH.erase_file(file) {
-            eprintln!("{}", e);
+            eprintln!("{}", pretty_error(&e.into()));
         }
     });
 }

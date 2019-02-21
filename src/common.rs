@@ -1,9 +1,9 @@
 use std::path::Path;
 
 use promptly::prompt;
-use xdg_trash::{TrashEntry, TrashError};
+use xdg_trash::{TrashEntry, TrashResult};
 
-use crate::CURRENT_TIME;
+use crate::{return_code, CURRENT_TIME};
 
 pub fn prompt_user_for_confirmation(p: &str) -> bool {
     prompt::<bool, &str>(p)
@@ -36,12 +36,27 @@ pub fn format_trash_entry(trash_entry: &TrashEntry) -> String {
     )
 }
 
-pub fn filter_out_and_print_errors(result: Result<TrashEntry, TrashError>) -> Option<TrashEntry> {
+pub fn filter_out_and_print_errors(result: TrashResult<TrashEntry>) -> Option<TrashEntry> {
     match result {
         Ok(x) => Some(x),
         Err(e) => {
-            eprintln!("{}", e);
+            eprintln!("{}", pretty_error(&e.into()));
             None
         }
     }
+}
+
+// https://github.com/BurntSushi/imdb-rename/blob/master/src/main.rs
+/// Return a prettily formatted error, including its entire causal chain.
+pub fn pretty_error(err: &failure::Error) -> String {
+    *return_code.lock().unwrap() = 1;
+
+    let mut pretty = err.to_string();
+    let mut prev = err.as_fail();
+    while let Some(next) = prev.cause() {
+        pretty.push_str(": ");
+        pretty.push_str(&next.to_string());
+        prev = next;
+    }
+    pretty
 }

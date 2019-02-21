@@ -16,3 +16,4 @@ regex = "1.1.0"
 promptly = "0.1.5"
 xdg-trash = { path = "./xdg_trash" }
 chrono = "0.4.6"
+failure = "0.1.5"

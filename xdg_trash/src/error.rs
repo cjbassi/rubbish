@@ -1,37 +1,31 @@
 use std::fmt::{self, Display};
+use std::io;
 
 use failure::{Backtrace, Context, Fail};
+
+pub type TrashResult<T> = std::result::Result<T, TrashError>;
 
 #[derive(Debug)]
 pub struct TrashError {
     inner: Context<TrashErrorKind>,
 }
 
-#[derive(Copy, Clone, Eq, PartialEq, Debug, Fail)]
+#[derive(Clone, Eq, PartialEq, Debug, Fail)]
 pub enum TrashErrorKind {
-    #[fail(display = "failed to move file")]
-    FileMoveError,
+    #[fail(display = "Path error: {}", _0)]
+    Path(String),
+    #[fail(display = "I/O error")]
+    Io,
 
-    #[fail(display = "invalid attempt to modify root folder")]
-    ModifyingRoot,
+    #[fail(display = "BaseDirectories error")]
+    BaseDirectories,
 
-    #[fail(display = "invalid attempt to trash trash-can")]
-    TrashingTrashCan,
-
-    #[fail(display = "file does not exist")]
-    FileDoesNotExist,
-
-    #[fail(display = "error parsing TrashInfo from String")]
-    TrashInfoStringParseError,
-
-    #[fail(display = "error parsing contents of .trashinfo file")]
-    TrashInfoFileParseError,
-
-    #[fail(display = "error reading from .trashinfo file")]
-    TrashInfoFileReadError,
-
-    #[fail(display = "error writing to .trashinfo file")]
-    TrashInfoFileWriteError,
+    #[fail(display = "failed to run subprocess: {}", _0)]
+    SubprocessError(String),
+    #[fail(display = "cannot trash trash-can: {}", _0)]
+    TrashingTrashCan(String),
+    #[fail(display = "failed to parse TrashInfo file: {}", _0)]
+    ParseTrashInfoError(String),
 }
 
 impl Fail for TrashError {
@@ -51,8 +45,8 @@ impl Display for TrashError {
 }
 
 impl TrashError {
-    pub fn kind(&self) -> TrashErrorKind {
-        *self.inner.get_context()
+    pub fn kind(&self) -> &TrashErrorKind {
+        self.inner.get_context()
     }
 }
 
@@ -67,5 +61,13 @@ impl From<TrashErrorKind> for TrashError {
 impl From<Context<TrashErrorKind>> for TrashError {
     fn from(inner: Context<TrashErrorKind>) -> TrashError {
         TrashError { inner: inner }
+    }
+}
+
+impl From<io::Error> for TrashError {
+    fn from(err: io::Error) -> TrashError {
+        TrashError {
+            inner: err.context(TrashErrorKind::Io),
+        }
     }
 }

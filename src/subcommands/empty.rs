@@ -1,5 +1,6 @@
 use crate::common::{
-    filter_out_and_print_errors, filter_trash_entry_by_age, prompt_user_for_confirmation,
+    filter_out_and_print_errors, filter_trash_entry_by_age, pretty_error,
+    prompt_user_for_confirmation,
 };
 use crate::TRASH;
 
@@ -10,12 +11,13 @@ pub fn run(days: Option<f64>, no_confirm: bool) {
 
     TRASH
         .get_trashed_files()
+        .unwrap()
         .into_iter()
         .filter_map(filter_out_and_print_errors)
         .filter(|trash_entry| filter_trash_entry_by_age(trash_entry, days))
         .for_each(|trash_entry| {
             if let Err(e) = TRASH.restore_trashed_file(trash_entry.trashed_path) {
-                eprintln!("{}", e);
+                eprintln!("{}", pretty_error(&e.into()));
             }
         });
 }

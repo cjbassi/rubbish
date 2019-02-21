@@ -8,6 +8,7 @@ edition = "2018"
 xdg = "2.2.0"
 chrono = "0.4.6"
 failure = "0.1.5"
+path-clean = "0.1.0"
 
 [lib]
 name = "xdg_trash"
