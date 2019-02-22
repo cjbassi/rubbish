@@ -72,7 +72,7 @@ impl Trash {
     where
         P: AsRef<Path>,
     {
-        let file = file.as_ref().absolute_path();
+        let file = file.as_ref().absolute_path()?;
 
         if !file.exists() {
             Err(io::Error::new(
@@ -88,7 +88,7 @@ impl Trash {
             )))?
         }
 
-        let trash_info_path = get_trash_info_path(&file, &self.home_trash);
+        let trash_info_path = get_trash_info_path(&file, &self.home_trash)?;
         let trash_info = TrashInfo {
             original_path: file.to_path_buf(),
             deletion_date: Local::now(),
@@ -110,8 +110,8 @@ impl Trash {
     where
         P: AsRef<Path>,
     {
-        let file = file.as_ref().absolute_path();
-        let trash_info_path = get_trash_info_path(&file, &self.home_trash);
+        let file = file.as_ref().absolute_path()?;
+        let trash_info_path = get_trash_info_path(&file, &self.home_trash)?;
         let original_path = fs::read_to_string(&trash_info_path)?
             .parse::<TrashInfo>()
             .context(TrashErrorKind::ParseTrashInfoError(
@@ -127,7 +127,7 @@ impl Trash {
     where
         P: AsRef<Path>,
     {
-        let file = file.as_ref().absolute_path();
+        let file = file.as_ref().absolute_path()?;
 
         if !file.exists() {
             Err(io::Error::new(
@@ -136,8 +136,8 @@ impl Trash {
             ))?
         }
 
-        if self.is_file_trashed(&file) {
-            fs::remove_file(get_trash_info_path(&file, &self.home_trash))?;
+        if self.is_file_trashed(&file)? {
+            fs::remove_file(get_trash_info_path(&file, &self.home_trash)?)?;
         }
         if file.is_dir() {
             fs::remove_dir_all(file)?;
@@ -148,25 +148,29 @@ impl Trash {
         Ok(())
     }
 
-    pub fn is_file_trashed<P>(&self, file: P) -> bool
+    pub fn is_file_trashed<P>(&self, file: P) -> io::Result<bool>
     where
         P: AsRef<Path>,
     {
-        file.as_ref()
-            .absolute_path()
-            .starts_with(&self.home_trash.join("files"))
+        Ok(file
+            .as_ref()
+            .absolute_path()?
+            .starts_with(&self.home_trash.join("files")))
     }
 }
 
-fn get_trash_info_path<P>(file: P, dir: P) -> PathBuf
+fn get_trash_info_path<P>(file: P, dir: P) -> io::Result<PathBuf>
 where
     P: AsRef<Path>,
 {
-    let (file, dir) = (file.as_ref().absolute_path(), dir.as_ref().absolute_path());
-    dir.join("info").join(format!(
+    let (file, dir) = (
+        file.as_ref().absolute_path()?,
+        dir.as_ref().absolute_path()?,
+    );
+    Ok(dir.join("info").join(format!(
         "{}.trashinfo",
         file.file_name().unwrap().to_string_lossy()
-    ))
+    )))
 }
 
 #[derive(Debug, PartialEq, Eq)]
@@ -201,6 +205,7 @@ impl FromStr for TrashInfo {
 
     fn from_str(s: &str) -> Result<Self> {
         parse_trash_info(s).map(|x| x.1).map_err(|_| {
+            // TODO figure out how to convert &str in error to static lifetime
             io::Error::new(io::ErrorKind::InvalidData, "failed to parse TrashInfo").into()
         })
     }

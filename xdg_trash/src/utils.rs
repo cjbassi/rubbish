@@ -15,8 +15,8 @@ where
     P1: AsRef<Path>,
     P2: AsRef<Path>,
 {
-    let from = from.as_ref().absolute_path();
-    let mut to = to.as_ref().absolute_path();
+    let from = from.as_ref().absolute_path()?;
+    let mut to = to.as_ref().absolute_path()?;
 
     if !from.exists() {
         Err(io::Error::new(
@@ -62,43 +62,44 @@ pub fn get_physical_mountpoints() -> Result<Vec<PathBuf>, Error> {
         .collect())
 }
 
+fn absolute_path<P>(path: P) -> io::Result<PathBuf>
+where
+    P: AsRef<Path>,
+{
+    let path = path.as_ref();
+    if path.is_absolute() {
+        Ok(path.to_path_buf().clean())
+    } else {
+        Ok(env::current_dir()?.join(path).clean())
+    }
+}
+
 pub trait AbsolutePath {
-    fn absolute_path(&self) -> PathBuf;
+    fn absolute_path(&self) -> io::Result<PathBuf>;
 }
 
 impl AbsolutePath for PathBuf {
-    fn absolute_path(&self) -> PathBuf {
-        let file = self.clean();
-        if file.is_absolute() {
-            file.to_path_buf()
-        } else {
-            env::current_dir().unwrap().join(file).clean()
-        }
+    fn absolute_path(&self) -> io::Result<PathBuf> {
+        absolute_path(&self)
     }
 }
 
 impl AbsolutePath for Path {
-    fn absolute_path(&self) -> PathBuf {
-        let file = self.to_path_buf().clean();
-        if file.is_absolute() {
-            file.to_path_buf()
-        } else {
-            env::current_dir().unwrap().join(file).clean()
-        }
+    fn absolute_path(&self) -> io::Result<PathBuf> {
+        absolute_path(&self)
     }
 }
 
-pub fn get_physical_mountpoint_of_path<P1, P2>(file: P1, mountpoints: &[P2]) -> PathBuf
+pub fn get_physical_mountpoint_of_path<P1, P2>(file: P1, mountpoints: &[P2]) -> io::Result<PathBuf>
 where
     P1: AsRef<Path>,
     P2: AsRef<Path>,
 {
-    let file = file.as_ref().absolute_path();
+    let file = file.as_ref().absolute_path()?;
     let mut mountpoints = mountpoints.into_iter();
     for ancestor in file.ancestors() {
-        match mountpoints.find(|mountpoint| mountpoint.as_ref() == ancestor) {
-            Some(x) => return x.as_ref().to_path_buf(),
-            None => {}
+        if let Some(x) = mountpoints.find(|mountpoint| mountpoint.as_ref() == ancestor) {
+            return Ok(x.as_ref().to_path_buf());
         }
     }
     panic!();
