@@ -9,9 +9,9 @@ use systemstat::{Platform, System};
 
 type Result<T> = std::result::Result<T, Error>;
 
-// renames a file, creating the destination directories if necessary, adds
-// a number to the end of the path if there are any path conflicts, and checks
-// if the destination is a directory and moves the file into the dir instead
+// Renames a file, creating the destination directories if necessary. Adds
+// a number to the end of the path if there are any path conflicts. Treats the destination
+// as a file and does not move the file into the directory if the destination is a directory.
 pub fn move_file_handle_conflicts<P1, P2>(from: P1, to: P2) -> io::Result<PathBuf>
 where
     P1: AsRef<Path>,
@@ -27,22 +27,13 @@ where
         ))?
     }
 
-    let (to_dir, to_filename) = if to.is_dir() {
-        (to, from.file_name().unwrap().to_string_lossy().to_string())
-    } else {
-        (
-            to.parent()
-                .ok_or_else(|| {
-                    io::Error::new(io::ErrorKind::InvalidInput, "cannot rename file to '/'")
-                })?
-                .to_owned(),
-            to.file_name().unwrap().to_string_lossy().to_string(),
-        )
-    };
+    let to_dir = to
+        .parent()
+        .ok_or_else(|| io::Error::new(io::ErrorKind::InvalidInput, "cannot rename file to '/'"))?
+        .to_owned();
+    let to_filename = to.file_name().unwrap().to_string_lossy().to_string();
 
     fs::create_dir_all(&to_dir)?;
-
-    to = to_dir.join(&to_filename);
 
     let mut count = 1;
     while to.exists() {
