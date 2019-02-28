@@ -1,3 +1,4 @@
+use colored::Colorize;
 use promptly::prompt;
 use xdg_trash::TrashEntry;
 
@@ -23,7 +24,7 @@ pub fn run(days: Option<f64>) {
         .for_each(|(i, trash_entry)| {
             println!(
                 "{} {}",
-                i + 1,
+                (i + 1).to_string().purple(),
                 format_trash_entry(&trash_entry).replace(&format!("{}/", *CURRENT_DIR_STRING), "")
             )
         });

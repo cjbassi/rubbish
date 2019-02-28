@@ -1,5 +1,6 @@
 use std::path::Path;
 
+use colored::Colorize;
 use promptly::prompt;
 use xdg_trash::{TrashEntry, TrashResult};
 
@@ -31,7 +32,9 @@ pub fn format_trash_entry(trash_entry: &TrashEntry) -> String {
         trash_entry
             .trash_info
             .deletion_date
-            .format("%Y-%m-%d %H:%M:%S"),
+            .format("%Y-%m-%d %H:%M:%S")
+            .to_string()
+            .blue(),
         trash_entry.trash_info.original_path.display(),
     )
 }
