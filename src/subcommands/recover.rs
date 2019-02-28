@@ -24,7 +24,7 @@ pub fn run(days: Option<f64>) {
             println!(
                 "{} {}",
                 i + 1,
-                format_trash_entry(&trash_entry).replace(&*CURRENT_DIR_STRING, ".")
+                format_trash_entry(&trash_entry).replace(&format!("{}/", *CURRENT_DIR_STRING), "")
             )
         });
 
