@@ -26,3 +26,16 @@ bash <(curl https://raw.githubusercontent.com/japaric/trust/c268696ab9f054e1092f
 ```
 cargo install --git https://github.com/cjbassi/trash-man
 ```
+
+## Cleaning trash periodically
+
+If you like, you can setup a systemd timer to run on a regular interval that cleans trash files older than a certain amount of days.
+
+A systemd timer file is located [here](./systemd/trash-empty.timer) along with the service file [here](./systemd/trash-empty.service).
+
+To setup the systemd timer:
+
+1. Copy both files to `~/.config/systemd/user/`
+2. Customize how often the timer runs (defaults to daily) and how old the files need to be to be deleted (defaults to 30 days)
+3. Run `systemctl --user daemon-reload`
+4. Run `systemctl --user enable --now trash-empty.timer`
