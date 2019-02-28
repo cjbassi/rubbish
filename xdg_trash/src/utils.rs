@@ -7,6 +7,8 @@ use failure::Error;
 use path_clean::PathClean;
 use systemstat::{Platform, System};
 
+type Result<T> = std::result::Result<T, Error>;
+
 // renames a file, creating the destination directories if necessary, adds
 // a number to the end of the path if there are any path conflicts, and checks
 // if the destination is a directory and moves the file into the dir instead
@@ -53,7 +55,7 @@ where
     Ok(to)
 }
 
-pub fn get_physical_mountpoints() -> Result<Vec<PathBuf>, Error> {
+pub fn get_physical_mountpoints() -> Result<Vec<PathBuf>> {
     Ok(System::new()
         .mounts()?
         .into_iter()

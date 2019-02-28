@@ -185,15 +185,16 @@ pub struct TrashInfo {
     pub deletion_date: DateTime<Local>,
 }
 
+#[cfg_attr(rustfmt, rustfmt_skip)]
 named!(
     parse_trash_info<&str, TrashInfo>,
     do_parse!(
-        tag!("[Trash Info]\n")
-            >> tag!("Path=")
-            >> original_path: take_until_and_consume!("\n")
-            >> tag!("DeletionDate=")
-            >> deletion_date: map_res!(take!(19), |input| Local.datetime_from_str(input, "%Y-%m-%dT%H:%M:%S"))
-            >> (TrashInfo {
+                        tag!("[Trash Info]\n") >>
+                        tag!("Path=") >>
+        original_path:  take_until_and_consume!("\n") >>
+                        tag!("DeletionDate=") >>
+        deletion_date:  map_res!(take!(19), |input| Local.datetime_from_str(input, "%Y-%m-%dT%H:%M:%S")) >>
+            (TrashInfo {
                 original_path: PathBuf::from(original_path),
                 deletion_date,
             })
@@ -205,7 +206,8 @@ impl FromStr for TrashInfo {
 
     fn from_str(s: &str) -> Result<Self> {
         parse_trash_info(s).map(|x| x.1).map_err(|_| {
-            // TODO figure out how to convert &str in error to static lifetime
+            // TODO figure out how to convert nom::error to failure::error while preserving its error message
+            // was having issues since failure::error requires a static lifetime and nom::error contains a &str
             io::Error::new(io::ErrorKind::InvalidData, "failed to parse TrashInfo").into()
         })
     }
