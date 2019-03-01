@@ -89,7 +89,7 @@ impl Trash {
             )))?
         }
         // check if file contains the cwd
-        if self.home_trash.starts_with(env::current_dir()?) {
+        if env::current_dir()?.starts_with(&file) {
             Err(TrashErrorKind::TrashingCwd(format!("{}", file.display())))?
         }
 
@@ -141,7 +141,7 @@ impl Trash {
             ))?
         }
         // check if file contains the cwd
-        if self.home_trash.starts_with(env::current_dir()?) {
+        if env::current_dir()?.starts_with(&file) {
             Err(TrashErrorKind::TrashingCwd(format!("{}", file.display())))?
         }
 
