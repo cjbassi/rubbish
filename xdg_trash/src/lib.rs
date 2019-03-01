@@ -4,6 +4,7 @@ mod utils;
 pub use error::{TrashError, TrashErrorKind, TrashResult};
 
 use std::cmp::Ordering;
+use std::env;
 use std::fmt;
 use std::fs;
 use std::io;
@@ -87,6 +88,10 @@ impl Trash {
                 file.display()
             )))?
         }
+        // check if file contains the cwd
+        if self.home_trash.starts_with(env::current_dir()?) {
+            Err(TrashErrorKind::TrashingCwd(format!("{}", file.display())))?
+        }
 
         let trashed_path = move_file_handle_conflicts(
             &file,
@@ -132,8 +137,12 @@ impl Trash {
         if !file.exists() {
             Err(io::Error::new(
                 io::ErrorKind::NotFound,
-                format!("cannot trash {}: file does not exist", file.display()),
+                format!("cannot erase {}: file does not exist", file.display()),
             ))?
+        }
+        // check if file contains the cwd
+        if self.home_trash.starts_with(env::current_dir()?) {
+            Err(TrashErrorKind::TrashingCwd(format!("{}", file.display())))?
         }
 
         if self.is_file_trashed(&file)? {

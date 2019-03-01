@@ -22,6 +22,8 @@ pub enum TrashErrorKind {
     #[fail(display = "SystemStat error")]
     SystemStat,
 
+    #[fail(display = "cannot trash cwd: {}", _0)]
+    TrashingCwd(String),
     #[fail(display = "cannot trash trash-can: {}", _0)]
     TrashingTrashCan(String),
     #[fail(display = "failed to parse TrashInfo file: {}", _0)]
