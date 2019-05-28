@@ -18,6 +18,11 @@ pub fn recover(days: Option<f64>, verbose: bool) {
         .filter(|trash_entry| filter_trash_entry_by_dir(trash_entry, &*CURRENT_DIR))
         .collect();
 
+    if trashed_files.is_empty() {
+        println!("no files to recover");
+        return;
+    }
+
     trashed_files
         .iter()
         .enumerate()
