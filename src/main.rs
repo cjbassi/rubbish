@@ -27,8 +27,12 @@ fn main() {
     let args = Args::from_args();
 
     match args.subcommand {
-        Subcommand::Empty { days, no_confirm } => {
-            subcommands::empty::empty(days, no_confirm);
+        Subcommand::Empty {
+            days,
+            no_confirm,
+            verbose,
+        } => {
+            subcommands::empty::empty(days, no_confirm, verbose);
         }
         Subcommand::Erase {
             files,

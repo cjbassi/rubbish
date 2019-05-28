@@ -19,6 +19,9 @@ pub enum Subcommand {
 
         #[structopt(long = "no-confirm")]
         no_confirm: bool,
+
+        #[structopt(short = "v", long = "verbose")]
+        verbose: bool,
     },
 
     /// Erase given files (i.e. `rm`)
