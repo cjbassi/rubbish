@@ -25,6 +25,11 @@ pub fn prune(pattern: String, no_confirm: bool, days: Option<f64>, verbose: bool
         .filter(|trash_entry| re.is_match(&trash_entry.trashed_path.to_string_lossy()))
         .collect();
 
+    if trashed_files.is_empty() {
+        println!("no matching files");
+        return;
+    }
+
     trashed_files.iter().for_each(|trash_entry| {
         println!(
             "{}",
