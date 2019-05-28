@@ -23,15 +23,17 @@ pub fn recover(days: Option<f64>, verbose: bool) {
         return;
     }
 
+    let digit_width = trashed_files.len().to_string().len();
     trashed_files
         .iter()
         .enumerate()
         .for_each(|(i, trash_entry)| {
             println!(
-                "{} {}",
+                "{:>digit_width$} {}",
                 (i + 1).to_string().purple(),
                 format_trash_entry(&trash_entry)
-                    .replace(&format!("{}/", (*CURRENT_DIR).display()), "")
+                    .replace(&format!("{}/", (*CURRENT_DIR).display()), ""),
+                digit_width = digit_width,
             )
         });
 
