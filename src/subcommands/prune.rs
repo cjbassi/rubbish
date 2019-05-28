@@ -7,8 +7,8 @@ use crate::common::{
 };
 use crate::{HOME_DIR_STRING, TRASH};
 
-pub fn run(pattern: String, no_confirm: bool, days: Option<f64>) {
-    let re = Regex::new(&pattern).expect("invalid regex given");
+pub fn prune(pattern: String, no_confirm: bool, days: Option<f64>, verbose: bool) {
+    let re = Regex::new(&pattern).expect("invalid regex given"); // TODO change to a eprintln and exit failure
 
     let trashed_files: Vec<TrashEntry> = TRASH
         .get_trashed_files()
@@ -33,6 +33,8 @@ pub fn run(pattern: String, no_confirm: bool, days: Option<f64>) {
     trashed_files.iter().for_each(|trash_entry| {
         if let Err(e) = TRASH.erase_file(&trash_entry.trashed_path) {
             eprintln!("{}", pretty_error(&e.into()));
+        } else if verbose {
+            println!("erased '{}'", trash_entry.trashed_path.display());
         }
     });
 }

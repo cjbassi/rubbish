@@ -3,6 +3,7 @@ mod common;
 mod subcommands;
 
 use std::env;
+use std::path::PathBuf;
 use std::process::exit;
 use std::sync::Mutex;
 
@@ -17,41 +18,43 @@ use args::{Args, Subcommand};
 lazy_static! {
     static ref HOME_DIR_STRING: String = home_dir().unwrap().to_string_lossy().to_string();
     static ref CURRENT_TIME: DateTime<Local> = Local::now();
-    static ref CURRENT_DIR_STRING: String =
-        env::current_dir().unwrap().to_string_lossy().to_string();
+    static ref CURRENT_DIR: PathBuf = env::current_dir().unwrap();
     static ref TRASH: Trash = Trash::new().unwrap();
-    static ref return_code: Mutex<i32> = Mutex::new(0);
-    static ref verbose: Mutex<bool> = Mutex::new(false);
+    static ref EXIT_CODE: Mutex<i32> = Mutex::new(0);
 }
 
 fn main() {
     let args = Args::from_args();
-    *verbose.lock().unwrap() = args.verbose;
 
     match args.subcommand {
         Subcommand::Empty { days, no_confirm } => {
-            subcommands::empty::run(days, no_confirm);
+            subcommands::empty::empty(days, no_confirm);
         }
-        Subcommand::Erase { files, no_confirm } => {
-            subcommands::erase::run(&files, no_confirm);
+        Subcommand::Erase {
+            files,
+            no_confirm,
+            verbose,
+        } => {
+            subcommands::erase::erase(&files, no_confirm, verbose);
         }
         Subcommand::List { days } => {
-            subcommands::list::run(days);
+            subcommands::list::list(days);
         }
         Subcommand::Prune {
             pattern,
             no_confirm,
             days,
+            verbose,
         } => {
-            subcommands::prune::run(pattern, no_confirm, days);
+            subcommands::prune::prune(pattern, no_confirm, days, verbose);
         }
-        Subcommand::Put { files } => {
-            subcommands::put::run(&files);
+        Subcommand::Put { files, verbose } => {
+            subcommands::put::put(&files, verbose);
         }
-        Subcommand::Recover { days } => {
-            subcommands::recover::run(days);
+        Subcommand::Recover { days, verbose } => {
+            subcommands::recover::recover(days, verbose);
         }
     }
 
-    exit(*return_code.lock().unwrap());
+    exit(*EXIT_CODE.lock().unwrap());
 }

@@ -6,9 +6,6 @@ use structopt::StructOpt;
 pub struct Args {
     #[structopt(subcommand)]
     pub subcommand: Subcommand,
-
-    #[structopt(short = "v", long = "verbose")]
-    pub verbose: bool,
 }
 
 #[derive(StructOpt, Debug)]
@@ -31,6 +28,9 @@ pub enum Subcommand {
 
         #[structopt(long = "no-confirm")]
         no_confirm: bool,
+
+        #[structopt(short = "v", long = "verbose")]
+        verbose: bool,
     },
 
     /// Recursively list files trashed from the current directory
@@ -50,16 +50,27 @@ pub enum Subcommand {
 
         #[structopt(name = "days")]
         days: Option<f64>,
+
+        #[structopt(short = "v", long = "verbose")]
+        verbose: bool,
     },
 
     /// Trash given files
     #[structopt(name = "put")]
-    Put { files: Vec<PathBuf> },
+    Put {
+        files: Vec<PathBuf>,
+
+        #[structopt(short = "v", long = "verbose")]
+        verbose: bool,
+    },
 
     /// Recover a previously trashed file to its original location
     #[structopt(name = "recover")]
     Recover {
         #[structopt(name = "days")]
         days: Option<f64>,
+
+        #[structopt(short = "v", long = "verbose")]
+        verbose: bool,
     },
 }

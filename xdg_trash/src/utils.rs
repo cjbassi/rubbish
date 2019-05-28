@@ -95,7 +95,7 @@ where
             return Ok(x.as_ref().to_path_buf());
         }
     }
-    panic!();
+    unreachable!();
 }
 
 #[cfg(test)]

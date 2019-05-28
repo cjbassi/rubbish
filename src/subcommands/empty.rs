@@ -4,7 +4,7 @@ use crate::common::{
 };
 use crate::TRASH;
 
-pub fn run(days: Option<f64>, no_confirm: bool) {
+pub fn empty(days: Option<f64>, no_confirm: bool) {
     if !no_confirm && !prompt_user_for_confirmation("Empty trash?") {
         return;
     }
