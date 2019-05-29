@@ -194,7 +194,7 @@ pub struct TrashInfo {
     pub deletion_date: DateTime<Local>,
 }
 
-#[cfg_attr(rustfmt, rustfmt_skip)]
+#[rustfmt::skip]
 named!(
     parse_trash_info<&str, TrashInfo>,
     do_parse!(

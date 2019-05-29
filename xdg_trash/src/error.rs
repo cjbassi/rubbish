@@ -62,7 +62,7 @@ impl From<TrashErrorKind> for TrashError {
 
 impl From<Context<TrashErrorKind>> for TrashError {
     fn from(inner: Context<TrashErrorKind>) -> TrashError {
-        TrashError { inner: inner }
+        TrashError { inner }
     }
 }
 

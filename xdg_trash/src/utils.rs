@@ -3,11 +3,11 @@ use std::fs;
 use std::io;
 use std::path::{Path, PathBuf};
 
-use failure::Error;
+// use failure::Error;
 use path_clean::PathClean;
-use systemstat::{Platform, System};
+// use systemstat::{Platform, System};
 
-type Result<T> = std::result::Result<T, Error>;
+// type Result<T> = std::result::Result<T, Error>;
 
 // Renames a file, creating the destination directories if necessary. Adds
 // a number to the end of the path if there are any path conflicts. Treats the destination
@@ -46,14 +46,14 @@ where
     Ok(to)
 }
 
-pub fn get_physical_mountpoints() -> Result<Vec<PathBuf>> {
-    Ok(System::new()
-        .mounts()?
-        .into_iter()
-        .filter(|filesystem| Path::new(&filesystem.fs_mounted_from).is_absolute())
-        .map(|filesystem| PathBuf::from(filesystem.fs_mounted_on))
-        .collect())
-}
+// pub fn get_physical_mountpoints() -> Result<Vec<PathBuf>> {
+//     Ok(System::new()
+//         .mounts()?
+//         .into_iter()
+//         .filter(|filesystem| Path::new(&filesystem.fs_mounted_from).is_absolute())
+//         .map(|filesystem| PathBuf::from(filesystem.fs_mounted_on))
+//         .collect())
+// }
 
 fn absolute_path<P>(path: P) -> io::Result<PathBuf>
 where
@@ -83,20 +83,20 @@ impl AbsolutePath for Path {
     }
 }
 
-pub fn get_physical_mountpoint_of_path<P1, P2>(file: P1, mountpoints: &[P2]) -> io::Result<PathBuf>
-where
-    P1: AsRef<Path>,
-    P2: AsRef<Path>,
-{
-    let file = file.as_ref().absolute_path()?;
-    let mut mountpoints = mountpoints.into_iter();
-    for ancestor in file.ancestors() {
-        if let Some(x) = mountpoints.find(|mountpoint| mountpoint.as_ref() == ancestor) {
-            return Ok(x.as_ref().to_path_buf());
-        }
-    }
-    unreachable!();
-}
+// pub fn get_physical_mountpoint_of_path<P1, P2>(file: P1, mountpoints: &[P2]) -> io::Result<PathBuf>
+// where
+//     P1: AsRef<Path>,
+//     P2: AsRef<Path>,
+// {
+//     let file = file.as_ref().absolute_path()?;
+//     let mut mountpoints = mountpoints.into_iter();
+//     for ancestor in file.ancestors() {
+//         if let Some(x) = mountpoints.find(|mountpoint| mountpoint.as_ref() == ancestor) {
+//             return Ok(x.as_ref().to_path_buf());
+//         }
+//     }
+//     unreachable!();
+// }
 
 #[cfg(test)]
 mod tests {
