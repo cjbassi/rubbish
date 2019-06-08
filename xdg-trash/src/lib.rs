@@ -15,7 +15,7 @@ use chrono::prelude::{DateTime, Local, TimeZone};
 use failure::{Error, ResultExt};
 use itertools::Itertools;
 use nom::{do_parse, map_res, named, tag, take, take_until_and_consume};
-use xdg::BaseDirectories;
+use platform_dirs::{AppDirs, AppUI};
 
 use utils::{move_file_handle_conflicts, AbsolutePath};
 
@@ -27,9 +27,9 @@ pub struct Trash {
 
 impl Trash {
     pub fn new() -> TrashResult<Trash> {
-        let home_trash = BaseDirectories::new()
-            .context(TrashErrorKind::BaseDirectories)?
-            .get_data_home()
+        let home_trash = AppDirs::new::<PathBuf>(None, AppUI::CommandLine)
+            .unwrap()
+            .data_dir
             .join("Trash");
         fs::create_dir_all(home_trash.join("files"))?;
         fs::create_dir_all(home_trash.join("info"))?;

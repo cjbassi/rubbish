@@ -5,14 +5,10 @@ authors = ["Caleb Bassi <calebjbassi@gmail.com>"]
 edition = "2018"
 
 [dependencies]
-xdg = "2.2.0"
+platform-dirs = "0.1.0"
 chrono = "0.4.6"
 failure = "0.1.5"
 path-clean = "0.1.0"
 systemstat = "0.1.3"
 nom = "4.2.0"
 itertools = "0.8.0"
-
-[lib]
-name = "xdg_trash"
-path = "src/lib.rs"

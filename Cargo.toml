@@ -10,11 +10,11 @@ path = "src/main.rs"
 
 [dependencies]
 structopt = "0.2.14"
-dirs = "1.0.4"
+platform-dirs = "0.1.0"
 lazy_static = "1.2.0"
 regex = "1.1.0"
 promptly = "0.1.5"
-xdg-trash = { path = "./xdg_trash" }
+xdg-trash = { path = "./xdg-trash" }
 chrono = "0.4.6"
 failure = "0.1.5"
 colored = "1.7.0"

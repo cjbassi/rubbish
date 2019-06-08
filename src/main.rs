@@ -8,8 +8,8 @@ use std::process::exit;
 use std::sync::Mutex;
 
 use chrono::prelude::{DateTime, Local};
-use dirs::home_dir;
 use lazy_static::lazy_static;
+use platform_dirs::home_dir;
 use structopt::StructOpt;
 use xdg_trash::Trash;
 
