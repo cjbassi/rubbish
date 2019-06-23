@@ -2,6 +2,8 @@
 
 A command line tool to interface with the XDG trash and a Rust port of [trash-cli](https://github.com/andreafrancia/trash-cli).
 
+**Warning**: trash-man is currently beta level. More tests need to be created and it currently only properly handles trashing files if the files are on the same filesystem/partition as your trash can. It has been working for me but no guarantees are made about the integrity of managing your files.
+
 Executable is called `trash` and the following subcommands are provided:
 
 - `empty`: Empty the trash
