@@ -128,7 +128,7 @@ impl Trash {
         Ok(restored_path)
     }
 
-    pub fn erase_file<P>(&self, file: P) -> TrashResult<()>
+    pub fn delete_file<P>(&self, file: P) -> TrashResult<()>
     where
         P: AsRef<Path>,
     {
@@ -137,7 +137,7 @@ impl Trash {
         if !file.exists() {
             Err(io::Error::new(
                 io::ErrorKind::NotFound,
-                format!("cannot erase {}: file does not exist", file.display()),
+                format!("cannot delete {}: file does not exist", file.display()),
             ))?
         }
         // check if file contains the cwd
@@ -261,7 +261,7 @@ mod tests {
     fn test_restore_trashed_file() {}
 
     #[test]
-    fn test_erase_file() {
+    fn test_delete_file() {
         use std::fs::File;
 
         let trash = Trash {
@@ -284,7 +284,7 @@ mod tests {
         assert!((&in_trash).exists());
         assert!((&in_trash_trash_info).exists());
 
-        trash.erase_file(&in_trash);
+        trash.delete_file(&in_trash);
 
         assert!(!(&in_trash).exists());
         assert!(!(&in_trash_trash_info).exists());
@@ -292,7 +292,7 @@ mod tests {
         let out_trash = trash.home_trash.join("asdf");
         File::create(&out_trash);
         assert!(&out_trash.exists());
-        trash.erase_file(&out_trash);
+        trash.delete_file(&out_trash);
         assert!(!&out_trash.exists());
 
         fs::remove_dir_all(trash.home_trash).unwrap();

@@ -37,15 +37,15 @@ pub fn prune(pattern: String, no_confirm: bool, days: Option<f64>, verbose: bool
         );
     });
 
-    if !no_confirm && !prompt_user_for_confirmation("Permanently erase files?") {
+    if !no_confirm && !prompt_user_for_confirmation("Permanently delete files?") {
         return;
     }
 
     trashed_files.iter().for_each(|trash_entry| {
-        if let Err(e) = TRASH.erase_file(&trash_entry.trashed_path) {
+        if let Err(e) = TRASH.delete_file(&trash_entry.trashed_path) {
             eprintln!("{}", pretty_error(&e.into()));
         } else if verbose {
-            println!("erased '{}'", trash_entry.trashed_path.display());
+            println!("deleted '{}'", trash_entry.trashed_path.display());
         }
     });
 }
