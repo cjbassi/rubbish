@@ -1,5 +1,5 @@
 [package]
-name = "trash-man"
+name = "trash-cli"
 version = "0.1.0"
 authors = ["Caleb Bassi <calebjbassi@gmail.com>"]
 edition = "2018"

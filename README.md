@@ -1,8 +1,8 @@
-# trash-man (trash)
+# trash-cli (trash)
 
-A command line tool to interface with the XDG trash and a Rust port of [trash-cli](https://github.com/andreafrancia/trash-cli).
+A command line tool written in Rust to interface with the XDG trash.
 
-**Warning**: trash-man is currently beta level and no guarantees are made about its integrity of managing your files. Additionally, it currently only interacts with the home trash and does not properly handle trashing files if the files are on a different filesystem/partition as your home folder.
+**Warning**: trash-cli is currently beta level and no guarantees are made about its integrity of managing your files. Additionally, it currently only interacts with the home trash and does not properly handle trashing files if the files are on a different filesystem/partition as your home folder.
 
 Executable is called `trash` and the following subcommands are provided:
 
@@ -25,13 +25,13 @@ Run the following to download the correct binary for your system from the releas
 
 ```bash
 bash <(curl -LSfs https://japaric.github.io/trust/install.sh) \
-  -f --git cjbassi/trash-man
+  -f --git cjbassi/trash-cli
 ```
 
 ### From source:
 
 ```bash
-cargo install --git https://github.com/cjbassi/trash-man
+cargo install --git https://github.com/cjbassi/trash-cli
 ```
 
 ## Periodically emptying the trash

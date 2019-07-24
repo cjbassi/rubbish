@@ -8,5 +8,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.1.0] - 2019-07-21
 
-[Unreleased]:	https://github.com/cjbassi/trash-man/compare/0.1.0...HEAD
-[0.1.0]:		https://github.com/cjbassi/trash-man/compare/3b0106c3ca7956ff8564c644400dd03131fb649c...0.1.0
+[Unreleased]:	https://github.com/cjbassi/trash-cli/compare/0.1.0...HEAD
+[0.1.0]:		https://github.com/cjbassi/trash-cli/compare/3b0106c3ca7956ff8564c644400dd03131fb649c...0.1.0
