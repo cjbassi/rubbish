@@ -111,7 +111,7 @@ impl Trash {
         Ok(trashed_path)
     }
 
-    pub fn recover_trashed_file<P>(&self, file: P) -> TrashResult<PathBuf>
+    pub fn restore_trashed_file<P>(&self, file: P) -> TrashResult<PathBuf>
     where
         P: AsRef<Path>,
     {
@@ -123,9 +123,9 @@ impl Trash {
                 trash_info_path.to_string_lossy().to_string(),
             ))?
             .original_path;
-        let recovered_path = move_file_handle_conflicts(&file, &original_path)?;
+        let restored_path = move_file_handle_conflicts(&file, &original_path)?;
         fs::remove_file(trash_info_path)?;
-        Ok(recovered_path)
+        Ok(restored_path)
     }
 
     pub fn erase_file<P>(&self, file: P) -> TrashResult<()>

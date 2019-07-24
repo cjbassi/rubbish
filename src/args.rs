@@ -67,9 +67,9 @@ pub enum Subcommand {
         verbose: bool,
     },
 
-    /// Recover a previously trashed file to its original location
-    #[structopt(name = "recover")]
-    Recover {
+    /// Restore a previously trashed file to its original location
+    #[structopt(name = "restore")]
+    Restore {
         #[structopt(name = "days")]
         days: Option<f64>,
 

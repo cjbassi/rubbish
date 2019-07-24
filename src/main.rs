@@ -55,8 +55,8 @@ fn main() {
         Subcommand::Put { files, verbose } => {
             subcommands::put::put(&files, verbose);
         }
-        Subcommand::Recover { days, verbose } => {
-            subcommands::recover::recover(days, verbose);
+        Subcommand::Restore { days, verbose } => {
+            subcommands::restore::restore(days, verbose);
         }
     }
 

@@ -1,3 +1,5 @@
+use std::process::exit;
+
 use colored::Colorize;
 use promptly::prompt;
 use xdg_trash::TrashEntry;
@@ -8,7 +10,7 @@ use crate::common::{
 };
 use crate::{CURRENT_DIR, TRASH};
 
-pub fn recover(days: Option<f64>, verbose: bool) {
+pub fn restore(days: Option<f64>, verbose: bool) {
     let trashed_files: Vec<TrashEntry> = TRASH
         .get_trashed_files()
         .unwrap()
@@ -19,7 +21,7 @@ pub fn recover(days: Option<f64>, verbose: bool) {
         .collect();
 
     if trashed_files.is_empty() {
-        println!("no files to recover");
+        println!("no files to restore");
         return;
     }
 
@@ -39,14 +41,17 @@ pub fn recover(days: Option<f64>, verbose: bool) {
 
     let input: u32 = prompt("Select file to restore");
 
-    let file_to_recover = &trashed_files
+    let file_to_restore = &trashed_files
         .get((input - 1) as usize)
-        .expect("index out of range")
+        .unwrap_or_else(|| {
+            eprintln!("index out of range");
+            exit(1)
+        })
         .trashed_path;
 
-    if let Err(e) = TRASH.recover_trashed_file(file_to_recover) {
+    if let Err(e) = TRASH.restore_trashed_file(file_to_restore) {
         eprintln!("{}", pretty_error(&e.into()));
     } else if verbose {
-        println!("recovered '{}'", file_to_recover.display());
+        println!("restored '{}'", file_to_restore.display());
     }
 }
