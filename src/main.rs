@@ -9,6 +9,7 @@ use std::sync::Mutex;
 
 use chrono::prelude::{DateTime, Local};
 use lazy_static::lazy_static;
+use lscolors::LsColors;
 use platform_dirs::home_dir;
 use structopt::StructOpt;
 use xdg_trash::Trash;
@@ -21,6 +22,7 @@ lazy_static! {
     static ref CURRENT_DIR: PathBuf = env::current_dir().unwrap();
     static ref TRASH: Trash = Trash::new().unwrap();
     static ref EXIT_CODE: Mutex<i32> = Mutex::new(0);
+    static ref LSCOLORS: LsColors = LsColors::from_env().unwrap_or_default();
 }
 
 fn main() {

@@ -1,10 +1,11 @@
 use std::path::Path;
 
 use colored::Colorize;
+use lscolors::Style;
 use promptly::prompt;
 use xdg_trash::{TrashEntry, TrashResult};
 
-use crate::{CURRENT_TIME, EXIT_CODE};
+use crate::{CURRENT_TIME, EXIT_CODE, LSCOLORS};
 
 pub fn prompt_user_for_confirmation(p: &str) -> bool {
     prompt::<bool, &str>(p)
@@ -35,7 +36,17 @@ pub fn format_trash_entry(trash_entry: &TrashEntry) -> String {
             .format("%Y-%m-%d %H:%M:%S")
             .to_string()
             .blue(),
-        trash_entry.trash_info.original_path.display(),
+        LSCOLORS
+            .style_for_path(&trash_entry.trashed_path)
+            .map(Style::to_ansi_term_style)
+            .unwrap_or_default()
+            .paint(
+                trash_entry
+                    .trash_info
+                    .original_path
+                    .to_string_lossy()
+                    .to_string()
+            )
     )
 }
 

@@ -18,3 +18,4 @@ xdg-trash = { path = "./xdg-trash" }
 chrono = "0.4.6"
 failure = "0.1.5"
 colored = "1.7.0"
+lscolors = "0.5.0"

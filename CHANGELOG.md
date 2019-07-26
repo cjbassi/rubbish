@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Colorize paths based on filetype
+
 ## [0.2.0] - 2019-07-24
 
 ### Changed
