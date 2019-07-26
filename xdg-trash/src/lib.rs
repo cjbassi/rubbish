@@ -14,7 +14,10 @@ use std::str::FromStr;
 use chrono::prelude::{DateTime, Local, TimeZone};
 use failure::{Error, ResultExt};
 use itertools::Itertools;
-use nom::{do_parse, map_res, named, tag, take, take_until_and_consume};
+use nom::bytes::complete::{tag, take_until};
+use nom::combinator::map_res;
+use nom::error::VerboseError;
+use nom::IResult;
 use platform_dirs::{AppDirs, AppUI};
 
 use utils::{move_file_handle_conflicts, AbsolutePath};
@@ -194,21 +197,26 @@ pub struct TrashInfo {
     pub deletion_date: DateTime<Local>,
 }
 
-#[rustfmt::skip]
-named!(
-    parse_trash_info<&str, TrashInfo>,
-    do_parse!(
-                        tag!("[Trash Info]\n") >>
-                        tag!("Path=") >>
-        original_path:  take_until_and_consume!("\n") >>
-                        tag!("DeletionDate=") >>
-        deletion_date:  map_res!(take!(19), |input| Local.datetime_from_str(input, "%Y-%m-%dT%H:%M:%S")) >>
-            (TrashInfo {
-                original_path: PathBuf::from(original_path),
-                deletion_date,
-            })
-    )
-);
+fn parse_trash_info<'a>(input: &'a str) -> IResult<&'a str, TrashInfo, VerboseError<&'a str>> {
+    let (input, _) = tag("[Trash Info]\n")(input)?;
+
+    let (input, _) = tag("Path=")(input)?;
+    let (input, original_path) = take_until("\n")(input)?;
+    let (input, _) = tag("\n")(input)?;
+
+    let (input, _) = tag("DeletionDate=")(input)?;
+    let (input, deletion_date) = map_res(take_until("\n"), |input| {
+        Local.datetime_from_str(input, "%Y-%m-%dT%H:%M:%S")
+    })(input)?;
+
+    Ok((
+        input,
+        TrashInfo {
+            original_path: PathBuf::from(original_path),
+            deletion_date,
+        },
+    ))
+}
 
 impl FromStr for TrashInfo {
     type Err = Error;
