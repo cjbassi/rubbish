@@ -2,7 +2,7 @@ use std::process::exit;
 
 use colored::Colorize;
 use promptly::prompt;
-use xdg_trash::TrashEntry;
+use trash_utils::TrashEntry;
 
 use crate::common::{
     filter_out_and_print_errors, filter_trash_entry_by_age, filter_trash_entry_by_dir,

@@ -12,7 +12,7 @@ use lazy_static::lazy_static;
 use lscolors::LsColors;
 use platform_dirs::home_dir;
 use structopt::StructOpt;
-use xdg_trash::Trash;
+use trash_utils::Trash;
 
 use args::{Args, Subcommand};
 

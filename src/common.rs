@@ -3,7 +3,7 @@ use std::path::Path;
 use colored::Colorize;
 use lscolors::Style;
 use promptly::prompt;
-use xdg_trash::{TrashEntry, TrashResult};
+use trash_utils::{Result, TrashEntry};
 
 use crate::{CURRENT_TIME, EXIT_CODE, LSCOLORS};
 
@@ -50,7 +50,7 @@ pub fn format_trash_entry(trash_entry: &TrashEntry) -> String {
     )
 }
 
-pub fn filter_out_and_print_errors(result: TrashResult<TrashEntry>) -> Option<TrashEntry> {
+pub fn filter_out_and_print_errors(result: Result<TrashEntry>) -> Option<TrashEntry> {
     match result {
         Ok(x) => Some(x),
         Err(e) => {
