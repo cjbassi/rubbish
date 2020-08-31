@@ -8,8 +8,8 @@ Executable is called `trash` and the following subcommands are provided:
 
 Subcommand | Description
 -----------|---------------------------------------------------------------------
-`delete`   | Delete the specified files (i.e. `rm`)
 `empty`    | Empty the trash
+`erase`    | Erase the specified files (i.e. `rm`)
 `list`     | Recursively list previously trashed files from a specified directory
 `prune`    | Delete files from the trash that match a specified regex
 `put`      | Trash the specified files

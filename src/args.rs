@@ -13,21 +13,21 @@ pub struct Args {
 
 #[derive(StructOpt, Debug)]
 pub enum Subcommand {
-    /// Delete given files (i.e. `rm`)
-    #[structopt(name = "delete")]
-    Delete {
-        files: Vec<PathBuf>,
-
-        #[structopt(long = "no-confirm")]
-        no_confirm: bool,
-    },
-
     /// Empty the trash
     #[structopt(name = "empty")]
     Empty {
         /// Only remove files deleted more than this many days ago
         #[structopt(name = "days")]
         days: Option<f64>,
+
+        #[structopt(long = "no-confirm")]
+        no_confirm: bool,
+    },
+
+    /// Erase given files (i.e. `rm`)
+    #[structopt(name = "erase")]
+    Erase {
+        files: Vec<PathBuf>,
 
         #[structopt(long = "no-confirm")]
         no_confirm: bool,

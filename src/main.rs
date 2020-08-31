@@ -29,11 +29,11 @@ fn main() {
     let args = Args::from_args();
 
     match args.subcommand {
-        Subcommand::Delete { files, no_confirm } => {
-            subcommands::delete::delete(&files, no_confirm, args.verbose);
-        }
         Subcommand::Empty { days, no_confirm } => {
             subcommands::empty::empty(days, no_confirm, args.verbose);
+        }
+        Subcommand::Erase { files, no_confirm } => {
+            subcommands::erase::erase(&files, no_confirm, args.verbose);
         }
         Subcommand::List { days } => {
             subcommands::list::list(days);

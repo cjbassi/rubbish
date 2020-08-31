@@ -16,7 +16,7 @@ pub fn empty(days: Option<f64>, no_confirm: bool, verbose: bool) {
         .filter_map(filter_out_and_print_errors)
         .filter(|trash_entry| filter_trash_entry_by_age(trash_entry, days))
         .for_each(|trash_entry| {
-            if let Err(e) = TRASH.delete_file(&trash_entry.trashed_path) {
+            if let Err(e) = TRASH.erase_file(&trash_entry.trashed_path) {
                 eprintln!("{}", pretty_error(&e.into()));
             } else if verbose {
                 println!("deleted '{}'", trash_entry.trashed_path.display());
