@@ -10,6 +10,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Colorize paths based on filetype
 
+### Changed
+
+- move verbose flag from subcommands to main command
+- change delete to erase
+
 ## [0.2.0] - 2019-07-24
 
 ### Changed
