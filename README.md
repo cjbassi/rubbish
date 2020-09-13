@@ -1,10 +1,12 @@
 # trash-cli (trash)
 
-A command line tool written in Rust to interface with the XDG trash.
+A command line tool written in Rust to interface with the OS's trash-can.
 
-**Warning**: trash-cli is currently beta level and no guarantees are made about its integrity of managing your files. Additionally, it currently only interacts with the home trash and does not properly handle trashing files if the files are on a different filesystem/partition as your home folder.
+Currently only Linux is supported.
 
-Executable is called `trash` and the following subcommands are provided:
+**Warning**: trash-cli is currently beta level and no guarantees are made about its integrity of managing your files. Additionally, it currently does not properly handle trashing files if the files are on a different filesystem/partition than the home folder.
+
+The executable is called `trash` and the following subcommands are provided:
 
 Subcommand | Description
 -----------|---------------------------------------------------------------------
@@ -31,9 +33,9 @@ Prebuilt binaries are provided in the [releases](https://github.com/cjbassi/tras
 cargo install --git https://github.com/cjbassi/trash-cli
 ```
 
-## Periodically emptying the trash
+## Automatically emptying the trash
 
-Various timers can be setup to periodically empty the trash of files that are older than a given age. This helps reduce the amount of files in the trash can and reduces the amount of disk space it requires.
+Various timers can be setup to automatically empty the trash of files that are older than a specified age. This helps reduce the amount of files in the trash-can and the amount of disk space it uses.
 
 ### systemd
 
