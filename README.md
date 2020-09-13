@@ -48,3 +48,15 @@ To setup the systemd timer:
 2. Customize how often the timer runs (defaults to daily) and how old the files need to be to be deleted (defaults to 30 days)
 3. Run `systemctl --user daemon-reload`
 4. Run `systemctl --user enable --now trash-empty.timer`
+
+## Related projects
+
+- sindresorhus
+  - [empty-recycle-bin](https://github.com/sindresorhus/empty-recycle-bin)
+  - [empty-trash-cli](https://github.com/sindresorhus/empty-trash-cli)
+  - [macos-trash](https://github.com/sindresorhus/macos-trash)
+  - [recycle-bin](https://github.com/sindresorhus/recycle-bin)
+  - [trash-cli](https://github.com/sindresorhus/trash-cli)
+- [garbage](https://git.sr.ht/~iptq/garbage)
+- [rip](https://github.com/nivekuil/rip)
+- [trash-cli](https://github.com/andreafrancia/trash-cli)
