@@ -17,16 +17,13 @@ Subcommand | Description
 
 ## Installation
 
+### Package managers
+
+[![Packaging status](https://repology.org/badge/vertical-allrepos/trash-cli.svg)](https://repology.org/project/trash-cli/versions)
+
 ### Prebuilt binaries:
 
-Note: (currently only a binary for Linux-x86_64 is available)
-
-Run the following to download the correct binary for your system from the releases tab into `$CARGO_HOME/bin`, courtesy of [japaric/trust](https://github.com/japaric/trust):
-
-```bash
-bash <(curl -LSfs https://japaric.github.io/trust/install.sh) \
-  -f --git cjbassi/trash-cli
-```
+Prebuilt binaries are provided in the [releases](https://github.com/cjbassi/trash-cli/releases) tab.
 
 ### From source:
 
