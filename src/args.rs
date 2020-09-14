@@ -1,65 +1,37 @@
-use std::path::PathBuf;
-
 use structopt::StructOpt;
+
+use crate::subcommands::{
+	empty::EmptyArgs, erase::EraseArgs, list::ListArgs, prune::PruneArgs, put::PutArgs,
+	restore::RestoreArgs,
+};
 
 #[derive(StructOpt, Debug)]
 pub struct Args {
 	#[structopt(subcommand)]
 	pub subcommand: Subcommand,
 
-	#[structopt(short = "v", long = "verbose")]
+	#[structopt(short, long)]
 	pub verbose: bool,
 }
 
 #[derive(StructOpt, Debug)]
+#[structopt(rename_all = "lower")]
 pub enum Subcommand {
 	/// Empty the trash
-	#[structopt(name = "empty")]
-	Empty {
-		/// Only remove files deleted more than this many days ago
-		#[structopt(name = "days")]
-		days: Option<f64>,
-
-		#[structopt(long = "no-confirm")]
-		no_confirm: bool,
-	},
+	Empty(EmptyArgs),
 
 	/// Erase given files (i.e. `rm`)
-	#[structopt(name = "erase")]
-	Erase {
-		files: Vec<PathBuf>,
-
-		#[structopt(long = "no-confirm")]
-		no_confirm: bool,
-	},
+	Erase(EraseArgs),
 
 	/// Recursively list files trashed from the current directory
-	#[structopt(name = "list")]
-	List {
-		#[structopt(name = "days")]
-		days: Option<f64>,
-	},
+	List(ListArgs),
 
 	/// Delete files from the trash that match a given regex
-	#[structopt(name = "prune")]
-	Prune {
-		pattern: String,
-
-		#[structopt(long = "no-confirm")]
-		no_confirm: bool,
-
-		#[structopt(name = "days")]
-		days: Option<f64>,
-	},
+	Prune(PruneArgs),
 
 	/// Trash given files
-	#[structopt(name = "put")]
-	Put { files: Vec<PathBuf> },
+	Put(PutArgs),
 
 	/// Restore a previously trashed file to its original location
-	#[structopt(name = "restore")]
-	Restore {
-		#[structopt(name = "days")]
-		days: Option<f64>,
-	},
+	Restore(RestoreArgs),
 }

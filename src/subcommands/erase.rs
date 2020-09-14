@@ -1,25 +1,34 @@
 use std::path::PathBuf;
 
 use anyhow::Result;
+use structopt::StructOpt;
 use trash_utils::Trash;
 
 use crate::common::prompt_user_for_confirmation;
 
-pub fn erase(files: &[PathBuf], no_confirm: bool, verbose: bool) -> Result<()> {
+#[derive(StructOpt, Debug)]
+pub struct EraseArgs {
+	files: Vec<PathBuf>,
+
+	#[structopt(long)]
+	no_confirm: bool,
+}
+
+pub fn erase(args: EraseArgs, verbose: bool) -> Result<()> {
 	let prompt = format!(
 		"Permanently erase file{}",
-		match files.len() {
+		match args.files.len() {
 			1 => "?",
 			_ => "s?",
 		}
 	);
-	if !no_confirm && !prompt_user_for_confirmation(&prompt) {
+	if !args.no_confirm && !prompt_user_for_confirmation(&prompt) {
 		return Ok(());
 	}
 
 	let trash = Trash::new()?;
 
-	files.iter().for_each(|file| {
+	args.files.iter().for_each(|file| {
 		if let Err(e) = trash.erase_file(file) {
 			eprintln!("{}", e);
 		} else if verbose {

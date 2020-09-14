@@ -2,6 +2,7 @@ use anyhow::Result;
 use lscolors::LsColors;
 use platform_dirs::home_dir;
 use regex::Regex;
+use structopt::StructOpt;
 use trash_utils::{Trash, TrashEntry};
 
 use crate::common::{
@@ -9,8 +10,18 @@ use crate::common::{
 	prompt_user_for_confirmation,
 };
 
-pub fn prune(pattern: String, no_confirm: bool, days: Option<f64>, verbose: bool) -> Result<()> {
-	let re = Regex::new(&pattern)?;
+#[derive(StructOpt, Debug)]
+pub struct PruneArgs {
+	pattern: String,
+
+	#[structopt(long)]
+	no_confirm: bool,
+
+	days: Option<f64>,
+}
+
+pub fn prune(args: PruneArgs, verbose: bool) -> Result<()> {
+	let re = Regex::new(&args.pattern)?;
 	let trash = Trash::new()?;
 	let lscolors = LsColors::from_env().unwrap_or_default();
 
@@ -18,7 +29,7 @@ pub fn prune(pattern: String, no_confirm: bool, days: Option<f64>, verbose: bool
 		.get_trashed_files()?
 		.into_iter()
 		.filter_map(filter_out_and_print_errors)
-		.filter(|trash_entry| filter_trash_entry_by_age(trash_entry, days))
+		.filter(|trash_entry| filter_trash_entry_by_age(trash_entry, args.days))
 		.filter(|trash_entry| re.is_match(&trash_entry.trashed_path.to_string_lossy()))
 		.collect();
 
@@ -38,7 +49,7 @@ pub fn prune(pattern: String, no_confirm: bool, days: Option<f64>, verbose: bool
 		);
 	});
 
-	if !no_confirm && !prompt_user_for_confirmation("Permanently delete files?") {
+	if !args.no_confirm && !prompt_user_for_confirmation("Permanently delete files?") {
 		return Ok(());
 	}
 

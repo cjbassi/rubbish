@@ -12,20 +12,14 @@ fn main() {
 	let args = Args::from_args();
 
 	let result = match args.subcommand {
-		Subcommand::Empty { days, no_confirm } => {
-			subcommands::empty::empty(days, no_confirm, args.verbose)
+		Subcommand::Empty(empty_args) => subcommands::empty::empty(empty_args, args.verbose),
+		Subcommand::Erase(erase_args) => subcommands::erase::erase(erase_args, args.verbose),
+		Subcommand::List(list_args) => subcommands::list::list(list_args),
+		Subcommand::Prune(prune_args) => subcommands::prune::prune(prune_args, args.verbose),
+		Subcommand::Put(put_args) => subcommands::put::put(put_args, args.verbose),
+		Subcommand::Restore(restore_args) => {
+			subcommands::restore::restore(restore_args, args.verbose)
 		}
-		Subcommand::Erase { files, no_confirm } => {
-			subcommands::erase::erase(&files, no_confirm, args.verbose)
-		}
-		Subcommand::List { days } => subcommands::list::list(days),
-		Subcommand::Prune {
-			pattern,
-			no_confirm,
-			days,
-		} => subcommands::prune::prune(pattern, no_confirm, days, args.verbose),
-		Subcommand::Put { files } => subcommands::put::put(&files, args.verbose),
-		Subcommand::Restore { days } => subcommands::restore::restore(days, args.verbose),
 	};
 
 	if let Err(e) = result {
