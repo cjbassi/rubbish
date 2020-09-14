@@ -1,9 +1,11 @@
 use std::path::PathBuf;
 
-use crate::common::{pretty_error, prompt_user_for_confirmation};
-use crate::TRASH;
+use anyhow::Result;
+use trash_utils::Trash;
 
-pub fn erase(files: &[PathBuf], no_confirm: bool, verbose: bool) {
+use crate::common::prompt_user_for_confirmation;
+
+pub fn erase(files: &[PathBuf], no_confirm: bool, verbose: bool) -> Result<()> {
 	let prompt = format!(
 		"Permanently erase file{}",
 		match files.len() {
@@ -12,14 +14,18 @@ pub fn erase(files: &[PathBuf], no_confirm: bool, verbose: bool) {
 		}
 	);
 	if !no_confirm && !prompt_user_for_confirmation(&prompt) {
-		return;
+		return Ok(());
 	}
 
+	let trash = Trash::new()?;
+
 	files.iter().for_each(|file| {
-		if let Err(e) = TRASH.erase_file(file) {
-			eprintln!("{}", pretty_error(&e.into()));
+		if let Err(e) = trash.erase_file(file) {
+			eprintln!("{}", e);
 		} else if verbose {
 			println!("erased '{}'", file.display());
 		}
 	});
+
+	Ok(())
 }
