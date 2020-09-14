@@ -1,10 +1,10 @@
-# trash-cli (trash)
+# trash-man (trash)
 
 A command line tool written in Rust to interface with the OS's trash-can.
 
 Currently only Linux is supported.
 
-**Warning**: trash-cli is currently beta level and no guarantees are made about its integrity of managing your files. Additionally, it currently does not properly handle trashing files if the files are on a different filesystem/partition than the home folder.
+**Warning**: trash-man is currently beta level and no guarantees are made about its integrity of managing your files. Additionally, it currently does not properly handle trashing files if the files are on a different filesystem/partition than the home folder.
 
 The executable is called `trash` and the following subcommands are provided:
 
@@ -21,16 +21,16 @@ Subcommand | Description
 
 ### Package managers
 
-[![Packaging status](https://repology.org/badge/vertical-allrepos/trash-cli.svg)](https://repology.org/project/trash-cli/versions)
+[![Packaging status](https://repology.org/badge/vertical-allrepos/trash-man.svg)](https://repology.org/project/trash-man/versions)
 
 ### Prebuilt binaries:
 
-Prebuilt binaries are provided in the [releases](https://github.com/cjbassi/trash-cli/releases) tab.
+Prebuilt binaries are provided in the [releases](https://github.com/cjbassi/trash-man/releases) tab.
 
 ### From source:
 
 ```bash
-cargo install --git https://github.com/cjbassi/trash-cli
+cargo install --git https://github.com/cjbassi/trash-man
 ```
 
 ## Automatically emptying the trash

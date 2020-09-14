@@ -637,7 +637,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "trash-cli"
+name = "trash-man"
 version = "0.3.0"
 dependencies = [
  "anyhow 1.0.32 (registry+https://github.com/rust-lang/crates.io-index)",
