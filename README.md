@@ -60,4 +60,5 @@ To setup the systemd timer:
   - [trash-cli](https://github.com/sindresorhus/trash-cli)
 - [garbage](https://git.sr.ht/~iptq/garbage)
 - [rip](https://github.com/nivekuil/rip)
+- [rubbish.py](https://github.com/alphapapa/rubbish.py)
 - [trash-cli](https://github.com/andreafrancia/trash-cli)
