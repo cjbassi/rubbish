@@ -29,26 +29,25 @@ where
 }
 
 pub fn format_trash_entry(lscolors: &LsColors, trash_entry: &TrashEntry) -> String {
-	format!(
-		"{} {}",
-		trash_entry
-			.trash_info
-			.deletion_date
-			.format("%Y-%m-%d %H:%M:%S")
-			.to_string()
-			.blue(),
-		lscolors
-			.style_for_path(&trash_entry.trashed_path)
-			.map(Style::to_ansi_term_style)
-			.unwrap_or_default()
-			.paint(
-				trash_entry
-					.trash_info
-					.original_path
-					.to_string_lossy()
-					.to_string()
-			)
-	)
+	let date = trash_entry
+		.trash_info
+		.deletion_date
+		.format("%Y-%m-%d %H:%M:%S")
+		.to_string()
+		.blue();
+	let path = lscolors
+		.style_for_path(&trash_entry.trashed_path)
+		.map(Style::to_ansi_term_style)
+		.unwrap_or_default()
+		.paint(
+			trash_entry
+				.trash_info
+				.original_path
+				.to_string_lossy()
+				.to_string(),
+		);
+
+	format!("{} {}", date, path)
 }
 
 pub fn filter_out_and_print_errors(result: trash_utils::Result<TrashEntry>) -> Option<TrashEntry> {
