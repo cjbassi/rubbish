@@ -1,6 +1,6 @@
 use anyhow::Result;
+use home::home_dir;
 use lscolors::LsColors;
-use platform_dirs::home_dir;
 use regex::Regex;
 use structopt::StructOpt;
 use trash_utils::{Trash, TrashEntry};
