@@ -21,10 +21,7 @@ pub fn filter_trash_entry_by_age(trash_entry: &TrashEntry, days: Option<f64>) ->
 	}
 }
 
-pub fn filter_trash_entry_by_dir<P>(trash_entry: &TrashEntry, path: P) -> bool
-where
-	P: AsRef<Path>,
-{
+pub fn filter_trash_entry_by_dir(trash_entry: &TrashEntry, path: impl AsRef<Path>) -> bool {
 	trash_entry.trash_info.original_path.starts_with(path)
 }
 
