@@ -1,6 +1,0 @@
-[Unit]
-Description=Run `trash empty`
-
-[Service]
-Type=oneshot
-ExecStart=trash empty 30 --no-confirm

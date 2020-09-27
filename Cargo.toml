@@ -1,11 +1,11 @@
 [package]
-name = "trash-man"
+name = "rubbish"
 version = "0.3.0"
 authors = ["Caleb Bassi <calebjbassi@gmail.com>"]
 edition = "2018"
 
 [[bin]]
-name = "trash"
+name = "rubbish"
 path = "src/main.rs"
 
 [dependencies]

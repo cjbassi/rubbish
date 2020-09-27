@@ -1,4 +1,4 @@
-# trash-man (trash)
+# rubbish
 
 A command line tool written in Rust to interface with the OS's trash-can.
 
@@ -6,9 +6,9 @@ Supported platforms:
 
 - Linux/*BSD: [The FreeDesktop.org Trash specification](https://specifications.freedesktop.org/trash-spec/trashspec-1.0.html)
 
-**Warning**: trash-man is currently beta level and no guarantees are made about its integrity of managing your files. Additionally, it currently does not properly handle trashing files if the files are on a different filesystem/partition than the home folder.
+**Warning**: rubbish is currently beta level and no guarantees are made about its integrity of managing your files. Additionally, it currently does not properly handle trashing files if the files are on a different filesystem/partition than the home folder.
 
-The executable is called `trash` and the following subcommands are provided:
+The following subcommands are provided:
 
 Subcommand | Description
 -----------|---------------------------------------------------------------------
@@ -23,16 +23,16 @@ Subcommand | Description
 
 ### Package managers
 
-[![Packaging status](https://repology.org/badge/vertical-allrepos/trash-man.svg)](https://repology.org/project/trash-man/versions)
+[![Packaging status](https://repology.org/badge/vertical-allrepos/rubbish.svg)](https://repology.org/project/rubbish/versions)
 
 ### Prebuilt binaries:
 
-Prebuilt binaries are provided in the [releases](https://github.com/cjbassi/trash-man/releases) tab.
+Prebuilt binaries are provided in the [releases](https://github.com/cjbassi/rubbish/releases) tab.
 
 ### From source:
 
 ```bash
-cargo install --git https://github.com/cjbassi/trash-man
+cargo install --git https://github.com/cjbassi/rubbish
 ```
 
 ## Automatically emptying the trash

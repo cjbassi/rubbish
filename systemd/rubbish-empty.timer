@@ -1,5 +1,5 @@
 [Unit]
-Description=Run `trash empty` daily
+Description=Run `rubbish empty` daily
 
 [Timer]
 OnCalendar=daily

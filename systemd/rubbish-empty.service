@@ -1,0 +1,6 @@
+[Unit]
+Description=Run `rubbish empty`
+
+[Service]
+Type=oneshot
+ExecStart=rubbish empty 30 --no-confirm
