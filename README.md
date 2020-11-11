@@ -58,7 +58,9 @@ To setup the systemd timer:
   - [macos-trash](https://github.com/sindresorhus/macos-trash)
   - [recycle-bin](https://github.com/sindresorhus/recycle-bin)
   - [trash-cli](https://github.com/sindresorhus/trash-cli)
-- [garbage](https://git.sr.ht/~iptq/garbage)
-- [rip](https://github.com/nivekuil/rip)
+- rust
+  - [garbage](https://git.sr.ht/~iptq/garbage)
+  - [rip](https://github.com/nivekuil/rip)
+  - [trash-cli](https://github.com/oberblastmeister/trash-cli)
 - [rubbish.py](https://github.com/alphapapa/rubbish.py)
 - [trash-cli](https://github.com/andreafrancia/trash-cli)
